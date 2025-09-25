@@ -1,11 +1,11 @@
 {
   "name": "profile-widgets",
   "version": "1.0.0",
-  "description": "Professional SVG widgets for Teytann's GitHub profile",
-  "type": "module",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "build": "vercel build"
   },
-  "keywords": ["github", "profile", "svg", "widgets", "professional"],
-  "author": "Teytann"
+  "dependencies": {
+    "@vercel/node": "^2.0.0"
+  }
 }
