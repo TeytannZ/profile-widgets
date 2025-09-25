@@ -136,8 +136,7 @@ export default function handler(req, res) {
       <!-- Main content -->
       <text x="600" y="150" text-anchor="middle" class="hero-name">Hi! I'm ${name}</text>
       <text x="600" y="200" text-anchor="middle" class="hero-title">${title}</text>
-      <text x="600" y="240" text-anchor="middle" class="hero-subtitle">✨ ${subtitle} ✨</text>
-      
+<text x="600" y="240" text-anchor="middle" class="hero-subtitle">✨ ${subtitle} ✨</text>      
       <!-- Decorative tech elements -->
       <rect x="100" y="320" width="120" height="4" fill="#00d9ff" opacity="0.6" rx="2"/>
       <rect x="980" y="320" width="120" height="4" fill="#ff6b6b" opacity="0.6" rx="2"/>
