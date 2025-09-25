@@ -115,8 +115,7 @@ export default function handler(req, res) {
         return `
           <!-- Category Section -->
           <rect class="category-bg" x="60" y="${startY - 20}" width="880" height="${categoryTechs.length * 35 + 40}" rx="12"/>
-          <text x="80" y="${startY}" class="category-label">${category} Technologies</text>
-          
+          <text x="80" y="${startY}" class="category-label">${category} Technologies</text>          
           ${categoryTechs.map((tech, techIndex) => {
             const y = startY + 30 + techIndex * 35;
             const barWidth = (tech.level / 100) * 500;
