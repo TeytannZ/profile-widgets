@@ -22,7 +22,7 @@ export default function handler(req, res) {
       color: '#7289da', 
       bg: 'rgba(114, 137, 218, 0.15)',
       url: 'https://discord.com/users/Teytann',
-      description: 'Let\'s Chat'
+      description: 'Let&apos;s Chat'
     },
     { 
       name: 'LinkedIn', 
