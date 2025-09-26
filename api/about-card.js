@@ -1,24 +1,78 @@
+const { createCanvas } = require('canvas');
 
-const { createSVG } = require('../utils/svg-utils');
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const { theme = 'dark', glow = 'false' } = req.query;
   
-  const content = `
-    <rect x="10" y="10" width="380" height="280" rx="20" class="gradient-bg" opacity="0.1"/>
-    
-    <text x="30" y="220" class="theme-secondary text-style" font-size="12" opacity="0.8">
-      "Code is poetry written in logic"
-    </text>
-    
-    <!-- Animated coding symbols -->
-    <text x="320" y="80" class="theme-accent text-style" font-size="16">&lt;/&gt;</text>
-    <text x="340" y="120" class="theme-primary text-style" font-size="14">{}</text>
-    <text x="360" y="160" class="theme-secondary text-style" font-size="12">[]</text>
-    
-    ${glow === 'true' ? '<animate attributeName="filter" values="drop-shadow(0 0 5px currentColor);drop-shadow(0 0 15px currentColor);drop-shadow(0 0 5px currentColor)" dur="3s" repeatCount="indefinite"/>' : ''}
-  `;
+  const width = 400;
+  const height = 300;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
   
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.send(createSVG(400, 300, content, theme));
+  const colors = {
+    dark: { bg: '#1a1a2e', primary: '#00d9ff', secondary: '#ff6b9d', text: '#ffffff' },
+    cyberpunk: { bg: '#0a0a0a', primary: '#00d9ff', secondary: '#ff6b6b', text: '#ffffff' }
+  };
+  
+  const themeColors = colors[theme] || colors.dark;
+  
+  // Background with gradient
+  const gradient = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width/2);
+  gradient.addColorStop(0, themeColors.bg + 'CC');
+  gradient.addColorStop(1, themeColors.bg);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+  
+  // Border
+  ctx.strokeStyle = themeColors.primary;
+  ctx.lineWidth = 2;
+  if (glow === 'true') {
+    ctx.shadowColor = themeColors.primary;
+    ctx.shadowBlur = 15;
+  }
+  ctx.strokeRect(10, 10, width - 20, height - 20);
+  ctx.shadowBlur = 0;
+  
+  // Title
+  ctx.fillStyle = themeColors.primary;
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'left';
+  ctx.shadowColor = themeColors.primary;
+  ctx.shadowBlur = 8;
+  ctx.fillText('💫 Quick Facts', 30, 50);
+  
+  // Facts
+  const facts = [
+    '🎓 Computer Science Student',
+    '💻 Frontend Developer', 
+    '🌱 Always Learning',
+    '🎨 Creative Coder',
+    '🚀 Building the Future'
+  ];
+  
+  ctx.fillStyle = themeColors.text;
+  ctx.font = '14px Arial';
+  ctx.shadowBlur = 3;
+  
+  facts.forEach((fact, index) => {
+    ctx.fillText(fact, 30, 85 + (index * 25));
+  });
+  
+  // Quote
+  ctx.fillStyle = themeColors.secondary;
+  ctx.font = 'italic 12px Arial';
+  ctx.shadowColor = themeColors.secondary;
+  ctx.shadowBlur = 5;
+  ctx.fillText('"Code is poetry written in logic"', 30, 220);
+  
+  // Tech symbols
+  ctx.fillStyle = themeColors.primary + '80';
+  ctx.font = '16px monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('</>', width - 30, 80);
+  ctx.fillText('{}', width - 30, 120);
+  ctx.fillText('[]', width - 30, 160);
+  
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(canvas.toBuffer('image/png'));
 };
