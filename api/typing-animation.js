@@ -25,6 +25,6 @@ module.exports = (req, res) => {
     </rect>
   `;
   
-  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Content-Type', 'image/png');
   res.send(createSVG(600, yPos + 20, content, theme));
 };
