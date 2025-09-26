@@ -1,82 +1,66 @@
-const { createCanvas, registerFont } = require('canvas');
-
 module.exports = async (req, res) => {
   const { title = 'Developer', subtitle = 'Coding the Future', theme = 'cyberpunk' } = req.query;
   
   const width = 800;
   const height = 120;
-  const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext('2d');
   
-  // Theme colors
-  const themes = {
-    cyberpunk: {
-      bg: '#0a0a0a',
-      primary: '#00d9ff',
-      secondary: '#ff6b6b',
-      accent: '#39ff14'
-    },
-    neon: {
-      bg: '#1a0033',
-      primary: '#ff00ff',
-      secondary: '#00ffff',
-      accent: '#ffff00'
-    }
+  // Generate a simple PNG using pure Node.js buffer manipulation
+  const createPNG = (width, height, pixelData) => {
+    const PNG_SIGNATURE = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    
+    const IHDR = Buffer.alloc(25);
+    IHDR.writeUInt32BE(13, 0); // Length
+    IHDR.write('IHDR', 4);
+    IHDR.writeUInt32BE(width, 8);
+    IHDR.writeUInt32BE(height, 12);
+    IHDR.writeUInt8(8, 16); // Bit depth
+    IHDR.writeUInt8(2, 17); // Color type (RGB)
+    IHDR.writeUInt8(0, 18); // Compression
+    IHDR.writeUInt8(0, 19); // Filter
+    IHDR.writeUInt8(0, 20); // Interlace
+    
+    // Simple CRC calculation for IHDR
+    const crc = require('zlib').crc32(IHDR.slice(4, 21));
+    IHDR.writeUInt32BE(crc >>> 0, 21);
+    
+    const IDAT = Buffer.alloc(pixelData.length + 8);
+    IDAT.writeUInt32BE(pixelData.length, 0);
+    IDAT.write('IDAT', 4);
+    pixelData.copy(IDAT, 8);
+    
+    const crc2 = require('zlib').crc32(IDAT.slice(4, IDAT.length - 4));
+    IDAT.writeUInt32BE(crc2 >>> 0, IDAT.length - 4);
+    
+    const IEND = Buffer.from([0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130]);
+    
+    return Buffer.concat([PNG_SIGNATURE, IHDR, IDAT, IEND]);
   };
   
-  const colors = themes[theme] || themes.cyberpunk;
+  // Create pixel data (simplified gradient effect)
+  const pixels = Buffer.alloc(width * height * 3);
   
-  // Background with gradient effect
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, colors.bg);
-  gradient.addColorStop(0.5, colors.primary + '20');
-  gradient.addColorStop(1, colors.bg);
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
+  const themes = {
+    cyberpunk: { r: 0, g: 217, b: 255 },
+    neon: { r: 255, g: 0, b: 255 }
+  };
   
-  // Border with glow effect
-  ctx.strokeStyle = colors.primary;
-  ctx.lineWidth = 3;
-  ctx.shadowColor = colors.primary;
-  ctx.shadowBlur = 20;
-  ctx.strokeRect(5, 5, width - 10, height - 10);
+  const color = themes[theme] || themes.cyberpunk;
   
-  // Reset shadow for text
-  ctx.shadowBlur = 0;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 3;
+      // Create gradient effect
+      const intensity = Math.sin((x / width) * Math.PI) * 0.3 + 0.7;
+      pixels[idx] = Math.floor(color.r * intensity);     // R
+      pixels[idx + 1] = Math.floor(color.g * intensity); // G
+      pixels[idx + 2] = Math.floor(color.b * intensity); // B
+    }
+  }
   
-  // Main title
-  ctx.fillStyle = colors.primary;
-  ctx.font = 'bold 36px Arial';
-  ctx.textAlign = 'center';
-  ctx.shadowColor = colors.primary;
-  ctx.shadowBlur = 10;
-  ctx.fillText(title, width / 2, 50);
-  
-  // Subtitle
-  ctx.fillStyle = colors.secondary;
-  ctx.font = '16px Arial';
-  ctx.shadowColor = colors.secondary;
-  ctx.shadowBlur = 5;
-  ctx.fillText(subtitle.replace(/\|/g, '|'), width / 2, 80);
-  
-  // Animated particles effect (static positions)
-  const particles = [
-    { x: width * 0.1, y: height * 0.3, size: 3 },
-    { x: width * 0.9, y: height * 0.4, size: 2 },
-    { x: width * 0.2, y: height * 0.7, size: 2.5 },
-    { x: width * 0.8, y: height * 0.2, size: 1.5 }
-  ];
-  
-  particles.forEach(particle => {
-    ctx.fillStyle = colors.accent;
-    ctx.shadowColor = colors.accent;
-    ctx.shadowBlur = 15;
-    ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  const compressed = require('zlib').deflateSync(pixels);
+  const png = createPNG(width, height, compressed);
   
   res.setHeader('Content-Type', 'image/png');
   res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.send(canvas.toBuffer('image/png'));
+  res.send(png);
 };
