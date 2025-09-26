@@ -4,8 +4,5 @@
   "description": "Custom GitHub profile widgets",
   "engines": {
     "node": "22.x"
-  },
-  "dependencies": {
-    "canvas": "^2.11.2"
   }
 }
