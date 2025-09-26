@@ -1,11 +1,13 @@
 {
   "name": "profile-widgets",
   "version": "1.0.0",
+  "description": "Custom GitHub profile widgets",
+  "main": "index.js",
   "scripts": {
     "dev": "vercel dev",
     "build": "vercel build"
   },
-  "dependencies": {
-    "@vercel/node": "^2.0.0"
+  "engines": {
+    "node": "18.x"
   }
 }
