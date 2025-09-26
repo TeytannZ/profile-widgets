@@ -1,36 +1,67 @@
+const { createCanvas } = require('canvas');
 
-const { createSVG } = require('../utils/svg-utils');
-
-module.exports = (req, res) => {
-  const { theme = 'neon', animated = 'false', github, email, discord, linkedin } = req.query;
+module.exports = async (req, res) => {
+  const { theme = 'neon', github, email, discord, linkedin } = req.query;
   
-  const links = [
-    { name: 'GitHub', url: `https://github.com/${github}`, icon: '🐙', color: '#333' },
-    { name: 'Email', url: `mailto:${email}`, icon: '📧', color: '#ea4335' },
-    { name: 'Discord', url: `https://discord.com/users/${discord}`, icon: '💬', color: '#7289da' },
-    { name: 'LinkedIn', url: linkedin, icon: '💼', color: '#0077b5' }
-  ].filter(link => link.url && link.url !== 'undefined' && link.url !== 'mailto:undefined');
+  const width = 800;
+  const height = 140;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
   
-  let content = `
-    <text x="400" y="30" text-anchor="middle" class="theme-primary text-style" font-size="20" font-weight="bold">
-      🚀 Let's Connect! 🚀
-    </text>
-  `;
+  const colors = {
+    neon: { bg: '#1a0033', primary: '#ff00ff', secondary: '#00ffff', accent: '#ffff00' },
+    cyberpunk: { bg: '#0a0a0a', primary: '#00d9ff', secondary: '#ff6b6b', accent: '#39ff14' }
+  };
   
-  links.forEach((link, index) => {
-    const x = 100 + (index * 150);
-    content += `
-      <g>
-        <rect x="${x}" y="50" width="120" height="60" rx="30" fill="${link.color}" opacity="0.8">
-          ${animated === 'true' ? '<animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>' : ''}
-        </rect>
-        <text x="${x + 60}" y="70" text-anchor="middle" class="text-style" fill="white" font-size="16">${link.icon}</text>
-        <text x="${x + 60}" y="90" text-anchor="middle" class="text-style" fill="white" font-size="10" font-weight="bold">${link.name}</text>
-        <animate attributeName="transform" values="scale(1);scale(1.1);scale(1)" dur="3s" begin="${index * 0.5}s" repeatCount="indefinite"/>
-      </g>
-    `;
+  const themeColors = colors[theme] || colors.neon;
+  
+  // Background
+  ctx.fillStyle = themeColors.bg;
+  ctx.fillRect(0, 0, width, height);
+  
+  // Title
+  ctx.fillStyle = themeColors.primary;
+  ctx.font = 'bold 20px Arial';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = themeColors.primary;
+  ctx.shadowBlur = 10;
+  ctx.fillText('🚀 Let\'s Connect! 🚀', width / 2, 30);
+  
+  // Buttons
+  const buttons = [
+    { name: 'GitHub', icon: '🐙', color: '#333333', x: 100 },
+    { name: 'Email', icon: '📧', color: '#ea4335', x: 250 },
+    { name: 'Discord', icon: '💬', color: '#7289da', x: 400 },
+    { name: 'LinkedIn', icon: '💼', color: '#0077b5', x: 550 }
+  ];
+  
+  ctx.shadowBlur = 0;
+  
+  buttons.forEach(button => {
+    // Button background
+    ctx.fillStyle = button.color;
+    ctx.fillRect(button.x, 50, 120, 60);
+    
+    // Button border glow
+    ctx.strokeStyle = themeColors.accent;
+    ctx.lineWidth = 2;
+    ctx.shadowColor = themeColors.accent;
+    ctx.shadowBlur = 10;
+    ctx.strokeRect(button.x, 50, 120, 60);
+    ctx.shadowBlur = 0;
+    
+    // Icon
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(button.icon, button.x + 60, 75);
+    
+    // Text
+    ctx.font = 'bold 12px Arial';
+    ctx.fillText(button.name, button.x + 60, 95);
   });
   
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.send(createSVG(800, 140, content, theme));
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(canvas.toBuffer('image/png'));
 };
