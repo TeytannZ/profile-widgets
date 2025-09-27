@@ -1,55 +1,67 @@
-
-const { createSVG } = require('../utils/svg-utils');
-
 module.exports = (req, res) => {
-  const { icons = 'javascript,react,nodejs', theme = 'neon', style = 'floating' } = req.query;
-  const iconList = icons.split(',');
+  const { icons = 'javascript,react,nodejs,html5,css3,python', theme = 'neon', style = 'floating' } = req.query;
+  const iconList = icons.split(',').slice(0, 12); // Max 12 icons
   
-  const iconMap = {
-    javascript: { symbol: 'JS', color: '#f7df1e' },
-    typescript: { symbol: 'TS', color: '#3178c6' },
-    react: { symbol: '⚛️', color: '#61dafb' },
-    nodejs: { symbol: 'Node', color: '#339933' },
-    html5: { symbol: 'HTML', color: '#e34f26' },
-    css3: { symbol: 'CSS', color: '#1572b6' },
-    python: { symbol: '🐍', color: '#3776ab' },
-    java: { symbol: '☕', color: '#ed8b00' },
-    git: { symbol: 'Git', color: '#f05032' },
-    github: { symbol: '🐙', color: '#181717' },
-    vscode: { symbol: 'VS', color: '#007acc' },
-    figma: { symbol: '🎨', color: '#f24e1e' },
-    mongodb: { symbol: 'DB', color: '#47a248' },
-    postgresql: { symbol: 'PG', color: '#336791' }
+  const iconEmojis = {
+    javascript: '🟨', typescript: '🔷', html5: '🟧', css3: '🟦', react: '⚛️', nodejs: '🟢',
+    python: '🐍', java: '☕', git: '🌿', github: '🐙', vscode: '📝', figma: '🎨',
+    mongodb: '🍃', postgresql: '🐘'
   };
   
-  let content = '';
-  const cols = Math.ceil(Math.sqrt(iconList.length));
-  const spacing = 80;
+  const colors = {
+    neon: { bg: '#1a0033', primary: '#ff00ff', secondary: '#00ffff', accent: '#ffff00' },
+    cyberpunk: { bg: '#0a0a0a', primary: '#00d9ff', secondary: '#ff6b6b', accent: '#39ff14' }
+  };
   
+  const themeColors = colors[theme] || colors.neon;
+  const cols = Math.min(6, Math.ceil(iconList.length / 2));
+  const width = Math.max(600, cols * 90 + 100);
+  const height = Math.max(200, Math.ceil(iconList.length / cols) * 80 + 100);
+  
+  let iconElements = '';
   iconList.forEach((icon, index) => {
-    const iconData = iconMap[icon.trim()] || { symbol: '?', color: '#666' };
+    const emoji = iconEmojis[icon.trim()] || '❓';
     const row = Math.floor(index / cols);
     const col = index % cols;
-    const x = 50 + (col * spacing);
-    const y = 50 + (row * spacing);
+    const x = 80 + (col * 90);
+    const y = 70 + (row * 80);
     
-    if (style === 'floating') {
-      content += `
-        <g>
-          <circle cx="${x}" cy="${y}" r="25" fill="${iconData.color}" opacity="0.8">
-            <animate attributeName="cy" values="${y};${y-5};${y}" dur="${2 + (index * 0.3)}s" repeatCount="indefinite"/>
-          </circle>
-          <text x="${x}" y="${y + 5}" text-anchor="middle" class="text-style" fill="white" font-size="12" font-weight="bold">
-            ${iconData.symbol}
-          </text>
-        </g>
-      `;
-    }
+    iconElements += `
+      <g>
+        <circle cx="${x}" cy="${y}" r="30" fill="${themeColors.primary}" opacity="0.2" stroke="${themeColors.accent}" stroke-width="2">
+          <animate attributeName="r" values="28;32;28" dur="${3 + index * 0.3}s" repeatCount="indefinite"/>
+        </circle>
+        <text x="${x}" y="${y + 8}" text-anchor="middle" font-size="24" opacity="0.9">
+          ${emoji}
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="${2.5 + index * 0.2}s" repeatCount="indefinite"/>
+        </text>
+        <text x="${x}" y="${y + 45}" text-anchor="middle" fill="${themeColors.secondary}" font-family="Arial" font-size="10" font-weight="bold">
+          ${icon.toUpperCase()}
+        </text>
+      </g>
+    `;
   });
   
-  const width = Math.max(400, (cols * spacing) + 100);
-  const height = Math.max(200, (Math.ceil(iconList.length / cols) * spacing) + 100);
-  
+  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="techBg" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" style="stop-color:${themeColors.bg}" />
+        <stop offset="70%" style="stop-color:${themeColors.primary}11" />
+        <stop offset="100%" style="stop-color:${themeColors.bg}" />
+      </radialGradient>
+    </defs>
+    
+    <rect width="${width}" height="${height}" fill="url(#techBg)" rx="15"/>
+    
+    <text x="${width/2}" y="35" text-anchor="middle" fill="${themeColors.primary}" font-family="Arial Black" font-size="22" font-weight="bold">
+      💻 Tech Arsenal 💻
+    </text>
+    
+    ${iconElements}
+  </svg>`;
+
   res.setHeader('Content-Type', 'image/svg+xml');
-  res.send(createSVG(width, height, content, theme));
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.send(svg);
 };
