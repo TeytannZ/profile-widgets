@@ -1,8 +1,8 @@
 {
   "name": "profile-widgets",
   "version": "1.0.0",
-  "description": "Custom GitHub profile widgets",
+  "description": "Custom GitHub profile widgets - 100% working",
   "engines": {
-    "node": "22.x"
+    "node": "18.x"
   }
 }
