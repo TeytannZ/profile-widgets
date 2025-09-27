@@ -1,71 +1,71 @@
-module.exports = async (req, res) => {
-  const { title = 'Developer', subtitle = 'Coding the Future', theme = 'cyberpunk' } = req.query;
+module.exports = (req, res) => {
+  const { title = 'Teytann', subtitle = 'Self-learner | Solo Coder | Creative Mind', theme = 'cyberpunk' } = req.query;
   
   const themes = {
     cyberpunk: {
-      bg: '#0a0a0a',
+      bg: 'rgba(10,10,10,1)',
       primary: '#00d9ff',
       secondary: '#ff6b6b',
-      accent: '#39ff14',
-      gradient: 'linear-gradient(135deg, #00d9ff 0%, #ff6b6b 100%)'
+      accent: '#39ff14'
     },
     neon: {
-      bg: '#1a0033',
-      primary: '#ff00ff',
+      bg: 'rgba(26,0,51,1)',
+      primary: '#ff00ff', 
       secondary: '#00ffff',
-      accent: '#ffff00',
-      gradient: 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)'
+      accent: '#ffff00'
     }
   };
   
   const colors = themes[theme] || themes.cyberpunk;
   
-  const svg = `
-    <svg width="800" height="120" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${colors.bg};stop-opacity:1" />
-          <stop offset="50%" style="stop-color:${colors.primary};stop-opacity:0.2" />
-          <stop offset="100%" style="stop-color:${colors.bg};stop-opacity:1" />
-        </linearGradient>
-        <filter id="glow">
-          <feMorphology operator="dilate" radius="2"/>
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge> 
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      
-      <rect width="100%" height="100%" fill="url(#bg)" rx="15"/>
-      <rect width="calc(100% - 4)" height="calc(100% - 4)" x="2" y="2" stroke="${colors.primary}" stroke-width="2" fill="none" rx="13" filter="url(#glow)"/>
-      
-      <text x="50%" y="45" text-anchor="middle" fill="${colors.primary}" font-family="Arial, sans-serif" font-size="32" font-weight="bold" filter="url(#glow)">
-        ${title}
-        <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
-      </text>
-      
-      <text x="50%" y="80" text-anchor="middle" fill="${colors.secondary}" font-family="Arial, sans-serif" font-size="16">
-        ${subtitle.replace(/\|/g, '|')}
-      </text>
-      
-      <circle cx="10%" cy="30%" r="2" fill="${colors.accent}" opacity="0.8">
-        <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="0s"/>
-      </circle>
-      <circle cx="90%" cy="40%" r="1.5" fill="${colors.primary}" opacity="0.7">
-        <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite" begin="1s"/>
-      </circle>
-      <circle cx="20%" cy="70%" r="1" fill="${colors.secondary}" opacity="0.6">
-        <animate attributeName="opacity" values="0;1;0" dur="4s" repeatCount="indefinite" begin="2s"/>
-      </circle>
-    </svg>
-  `;
-  
-  // Convert SVG to base64 data URL (this works in GitHub!)
-  const base64 = Buffer.from(svg).toString('base64');
-  const dataURL = `data:image/svg+xml;base64,${base64}`;
-  
-  // Redirect to the data URL
-  res.redirect(dataURL);
+  const svg = `<svg width="800" height="120" viewBox="0 0 800 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${colors.bg}" />
+        <stop offset="30%" style="stop-color:${colors.primary}33" />
+        <stop offset="70%" style="stop-color:${colors.secondary}22" />
+        <stop offset="100%" style="stop-color:${colors.bg}" />
+      </linearGradient>
+      <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feMorphology operator="dilate" radius="1"/>
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    
+    <rect width="800" height="120" fill="url(#bgGrad)" rx="15"/>
+    <rect x="3" y="3" width="794" height="114" stroke="${colors.primary}" stroke-width="2" fill="none" rx="12" opacity="0.8"/>
+    
+    <text x="400" y="50" text-anchor="middle" fill="${colors.primary}" font-family="Arial Black, Arial" font-size="36" font-weight="900" filter="url(#glow)">
+      ${title}
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+    </text>
+    
+    <text x="400" y="85" text-anchor="middle" fill="${colors.secondary}" font-family="Arial" font-size="16" font-weight="bold">
+      ✨ ${subtitle.replace(/\|/g, '|')} ✨
+    </text>
+    
+    <!-- Animated particles -->
+    <circle cx="80" cy="30" r="3" fill="${colors.accent}" opacity="0.9">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="720" cy="35" r="2" fill="${colors.primary}" opacity="0.8">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="2.5s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+    <circle cx="150" cy="90" r="2.5" fill="${colors.secondary}" opacity="0.7">
+      <animate attributeName="opacity" values="0.1;0.9;0.1" dur="3.5s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+    <circle cx="650" cy="85" r="1.5" fill="${colors.accent}" opacity="0.6">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite" begin="1.5s"/>
+    </circle>
+  </svg>`;
+
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.send(svg);
 };
