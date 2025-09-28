@@ -1,3 +1,4 @@
+// api/tech-stack.js - CORRECTED TECH LIST WITH BEAUTIFUL ICONS
 module.exports = (req, res) => {
   const { icons = 'html,css,javascript,typescript,react,nextjs,tailwind,nodejs,expressjs,mongodb,postgresql,vscode,git,github' } = req.query;
   
