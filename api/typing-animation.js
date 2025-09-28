@@ -4,6 +4,15 @@ module.exports = (req, res) => {
   const codeLines = lines.split(';').filter(line => line.length > 0);
   const height = Math.max(240, codeLines.length * 35 + 140);
   
+  // Calculate total characters for proper cursor timing
+  let totalChars = 0;
+  const lineData = codeLines.map(line => {
+    const clean = line.replace(/%20/g, ' ').trim();
+    const start = totalChars;
+    totalChars += clean.length;
+    return { text: clean, start, length: clean.length };
+  });
+  
   const svg = `<svg width="700" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="termBg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -30,11 +39,10 @@ module.exports = (req, res) => {
       <animate attributeName="stroke-opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
     </rect>
     
-    <!-- Terminal window with enhanced styling -->
     <rect x="15" y="15" width="670" height="${height - 30}" rx="15" fill="#0d1117" stroke="#21262d" stroke-width="1"/>
     <rect x="15" y="15" width="670" height="${height - 30}" rx="15" fill="url(#scanlines)"/>
     
-    <!-- Terminal header with animations -->
+    <!-- Terminal header -->
     <rect x="15" y="15" width="670" height="40" rx="15" fill="#161b22"/>
     
     <circle cx="35" cy="35" r="6" fill="#ff5f56">
@@ -47,85 +55,61 @@ module.exports = (req, res) => {
       <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1s"/>
     </circle>
     
-    <text x="350" y="40" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" filter="url(#termGlow)">
-      Terminal - Live Coding Session
+    <text x="350" y="40" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600">
+      Live Terminal Session
     </text>
     
-    <!-- Status indicators -->
     <circle cx="640" cy="35" r="4" fill="#3fb950">
       <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-      <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
     </circle>
     <text x="620" y="40" fill="#3fb950" font-family="monospace" font-size="10">LIVE</text>
     
-    <!-- Enhanced prompt -->
     <text x="35" y="80" fill="#58a6ff" font-family="monospace" font-size="16" font-weight="600" filter="url(#termGlow)">
       teytann@dev:~$
-      <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
     </text>
     
-    <!-- Matrix-style background code -->
-    <g opacity="0.1">
-      ${Array.from({length: 12}, (_, i) => `
-        <text x="${100 + (i * 50)}" y="90" fill="#3fb950" font-family="monospace" font-size="10">
-          ${Math.random().toString(2).substr(2, 8)}
-          <animate attributeName="y" values="70;${height};70" dur="${8 + i}s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0;0.3;0" dur="${8 + i}s" repeatCount="indefinite"/>
-        </text>
-      `).join('')}
-    </g>
-    
-    <!-- Enhanced code lines with advanced syntax highlighting -->
-    ${codeLines.map((line, i) => {
-      const yPos = 115 + (i * 35);
-      const cleanLine = line.replace(/%20/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+    <!-- Real character-by-character typing animation -->
+    ${lineData.map((line, lineIndex) => {
+      const yPos = 115 + (lineIndex * 35);
+      let content = '';
       
-      if (cleanLine.includes('console.log')) {
-        return `
-          <text x="50" y="${yPos}" font-family="monospace" font-size="15" filter="url(#termGlow)">
-            <tspan fill="#d73a49">console</tspan><tspan fill="#f0f6fc">.</tspan><tspan fill="#6f42c1">log</tspan><tspan fill="#f0f6fc">(</tspan><tspan fill="#032f62">'Hello World!'</tspan><tspan fill="#f0f6fc">);</tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-            <animateTransform attributeName="transform" type="translate" values="-10,0;0,0" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-          </text>
-        `;
-      } else if (cleanLine.includes('const')) {
-        return `
-          <text x="50" y="${yPos}" font-family="monospace" font-size="15" filter="url(#termGlow)">
-            <tspan fill="#d73a49">const</tspan><tspan fill="#f0f6fc"> learning = </tspan><tspan fill="#005cc5">true</tspan><tspan fill="#f0f6fc">;</tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-            <animateTransform attributeName="transform" type="translate" values="-10,0;0,0" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-          </text>
-        `;
-      } else if (cleanLine.includes('while')) {
-        return `
-          <text x="50" y="${yPos}" font-family="monospace" font-size="15" filter="url(#termGlow)">
-            <tspan fill="#d73a49">while</tspan><tspan fill="#f0f6fc">(</tspan><tspan fill="#005cc5">learning</tspan><tspan fill="#f0f6fc">) { </tspan><tspan fill="#6f42c1">code</tspan><tspan fill="#f0f6fc">(); }</tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-            <animateTransform attributeName="transform" type="translate" values="-10,0;0,0" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-          </text>
-        `;
-      } else {
-        return `
-          <text x="50" y="${yPos}" fill="#f0f6fc" font-family="monospace" font-size="15" filter="url(#termGlow)">
-            ${cleanLine}
-            <animate attributeName="opacity" values="0;1" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
-            <animateTransform attributeName="transform" type="translate" values="-10,0;0,0" dur="0.8s" begin="${i * 1.2}s" fill="freeze"/>
+      // Create each character with individual timing
+      for (let i = 0; i < line.text.length; i++) {
+        const char = line.text[i];
+        const delay = (line.start + i) * 0.1; // 100ms per character
+        
+        // Color coding for syntax highlighting
+        let fill = '#f0f6fc';
+        if (line.text.includes('console.log')) {
+          if (i >= 0 && i < 7) fill = '#d73a49'; // console
+          if (i >= 8 && i < 11) fill = '#6f42c1'; // log
+          if (char === "'" || (i > line.text.indexOf("'") && i < line.text.lastIndexOf("'"))) fill = '#032f62';
+        } else if (line.text.includes('const')) {
+          if (i >= 0 && i < 5) fill = '#d73a49'; // const
+          if (char === 'true' || char === 'false') fill = '#005cc5';
+        } else if (line.text.includes('while')) {
+          if (i >= 0 && i < 5) fill = '#d73a49'; // while
+          if (line.text.substring(i, i + 4) === 'code') fill = '#6f42c1';
+        }
+        
+        content += `
+          <text x="${50 + (i * 9)}" y="${yPos}" fill="${fill}" font-family="monospace" font-size="15" opacity="0">
+            ${char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '&' ? '&amp;' : char}
+            <animate attributeName="opacity" values="0;1" dur="0.1s" begin="${delay}s" fill="freeze"/>
           </text>
         `;
       }
+      return content;
     }).join('')}
     
-    <!-- Enhanced cursor with multiple effects -->
-    <rect x="${60 + (codeLines[codeLines.length - 1]?.length || 0) * 9}" y="${105 + (codeLines.length * 35)}" width="3" height="20" fill="#3fb950" filter="url(#termGlow)">
-      <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
-      <animate attributeName="fill" values="#3fb950;#58a6ff;#3fb950" dur="3s" repeatCount="indefinite"/>
-      <animate attributeName="width" values="2;4;2" dur="2s" repeatCount="indefinite"/>
+    <!-- Cursor positioned correctly after the last character -->
+    <rect x="${50 + (lineData[lineData.length - 1]?.length || 0) * 9}" y="${105 + (codeLines.length * 35)}" width="3" height="20" fill="#3fb950" filter="url(#termGlow)">
+      <animate attributeName="opacity" values="0;0;1;0;1" dur="1s" begin="${totalChars * 0.1}s" repeatCount="indefinite"/>
     </rect>
     
-    <!-- Process indicator -->
-    <text x="35" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12">
-      Process finished with exit code 0
-      <animate attributeName="opacity" values="0;0.8" dur="1s" begin="${codeLines.length * 1.2 + 2}s" fill="freeze"/>
+    <text x="35" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0">
+      Process completed successfully
+      <animate attributeName="opacity" values="0;0.8" dur="1s" begin="${totalChars * 0.1 + 2}s" fill="freeze"/>
     </text>
   </svg>`;
   
