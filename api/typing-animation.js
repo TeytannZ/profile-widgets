@@ -100,4 +100,5 @@ module.exports = (req, res) => {
   
   res.setHeader('Content-Type', 'image/svg+xml');
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
-  res.se
+  res.send(svg);
+};
