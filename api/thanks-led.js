@@ -1,9 +1,31 @@
 module.exports = (req, res) => {
   const { message = 'Thanks for stopping by!' } = req.query;
   
-  const svg = `<svg width="650" height="130" xmlns="http://www.w3.org/2000/svg">
+  const svg = `<svg width="650" height="140" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <filter id="ledGlow">
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0d1117">
+          <animate attributeName="stop-color" values="#0d1117;#161b22;#0d1117" dur="8s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="50%" stop-color="#161b22"/>
+        <stop offset="100%" stop-color="#21262d">
+          <animate attributeName="stop-color" values="#21262d;#30363d;#21262d" dur="6s" repeatCount="indefinite"/>
+        </stop>
+      </linearGradient>
+      
+      <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#58a6ff">
+          <animate attributeName="offset" values="0%;20%;0%" dur="5s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="50%" stop-color="#ff7b72">
+          <animate attributeName="offset" values="50%;70%;50%" dur="4s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="100%" stop-color="#a5f3fc">
+          <animate attributeName="offset" values="100%;80%;100%" dur="6s" repeatCount="indefinite"/>
+        </stop>
+      </linearGradient>
+      
+      <filter id="glow">
         <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
         <feMerge>
           <feMergeNode in="coloredBlur"/>
@@ -11,48 +33,44 @@ module.exports = (req, res) => {
         </feMerge>
       </filter>
       
-      <linearGradient id="ledBg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#0d1117"/>
-        <stop offset="100%" stop-color="#161b22"/>
-      </linearGradient>
+      <pattern id="dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="1" fill="#58a6ff" opacity="0.1">
+          <animate attributeName="opacity" values="0.05;0.15;0.05" dur="3s" repeatCount="indefinite"/>
+        </circle>
+      </pattern>
     </defs>
     
-    <rect width="650" height="130" fill="url(#ledBg)" rx="20"/>
-    <rect width="646" height="126" x="2" y="2" fill="none" stroke="#58a6ff" stroke-width="2" rx="18"/>
+    <rect width="650" height="140" fill="url(#bg)" rx="20"/>
+    <rect width="650" height="140" fill="url(#dots)" rx="20"/>
+    <rect width="646" height="136" x="2" y="2" fill="none" stroke="url(#text)" stroke-width="2" rx="18" stroke-dasharray="8,4">
+      <animate attributeName="stroke-dashoffset" values="0;-24;0" dur="3s" repeatCount="indefinite"/>
+    </rect>
     
-    <!-- LED display background -->
-    <rect x="20" y="20" width="610" height="90" rx="15" fill="#000" stroke="#21262d" stroke-width="1"/>
+    <!-- Floating elements like header -->
+    <circle cx="80" cy="40" r="2" fill="#58a6ff">
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="40;35;40" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="570" cy="100" r="1.5" fill="#a5f3fc">
+      <animate attributeName="cx" values="570;575;570" dur="5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+    </circle>
     
-    <!-- LED border lights -->
-    ${Array.from({length: 24}, (_, i) => {
-      const x = 35 + (i * 24);
-      const colors = ['#58a6ff', '#ff7b72', '#3fb950', '#f7df1e'];
-      const color = colors[i % 4];
-      return `
-        <circle cx="${x}" cy="35" r="2.5" fill="${color}" filter="url(#ledGlow)">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="${i * 0.1}s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="${x}" cy="95" r="2.5" fill="${color}" filter="url(#ledGlow)">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin="${i * 0.1 + 1}s" repeatCount="indefinite"/>
-        </circle>
-      `;
-    }).join('')}
-    
-    <!-- Main message -->
-    <text x="325" y="70" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="700" filter="url(#ledGlow)">
+    <text x="325" y="75" text-anchor="middle" fill="url(#text)" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="800" filter="url(#glow)">
       ${message.replace(/%20/g, ' ')}
-      <animate attributeName="opacity" values="0.9;1;0.9" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="scale" values="1;1.01;1" dur="4s" repeatCount="indefinite"/>
     </text>
     
-    <!-- Decorative elements -->
-    <text x="120" y="50" fill="#f7df1e" font-size="14">✨
-      <animateTransform attributeName="transform" type="rotate" values="0 120 50;360 120 50" dur="4s" repeatCount="indefinite"/>
+    <text x="120" y="110" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.7">
+      &lt;/visit&gt;
+      <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
     </text>
-    <text x="530" y="55" fill="#ff7b72" font-size="14">⭐
-      <animateTransform attributeName="transform" type="scale" values="1;1.2;1" dur="3s" repeatCount="indefinite"/>
+    
+    <text x="530" y="110" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.6">
+      { gratitude: true }
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
     </text>
-    <text x="150" y="85" fill="#3fb950" font-size="12">💫</text>
-    <text x="500" y="80" fill="#58a6ff" font-size="16">🌟</text>
   </svg>`;
   
   res.setHeader('Content-Type', 'image/svg+xml');
