@@ -1,86 +1,95 @@
 module.exports = (req, res) => {
-  const { 
-    theme = 'holographic', 
-    animated = 'false',
-    facts = '🌱 Passionate learner;💡 Problem solver;🎨 Creative thinker;📚 Always studying;🚀 Future developer'
-  } = req.query;
+  const { facts = '🌱 Passionate learner;💡 Problem solver;🎨 Creative thinker;📚 Always studying;🚀 Future developer' } = req.query;
   
-  const themes = {
-    holographic: { primary: '#f093fb', secondary: '#f5576c', accent: '#4facfe', bg: '#2d1b69', text: '#ffffff' }
-  };
-  
-  const colors = themes[theme] || themes.holographic;
   const factList = facts.split(';');
-  const height = Math.max(250, factList.length * 40 + 120);
+  const height = Math.max(280, factList.length * 40 + 120);
   
-  const svg = `
-    <svg width="650" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <filter id="holoGlow">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-        <linearGradient id="holoBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:${colors.primary};stop-opacity:0.15"/>
-          <stop offset="50%" style="stop-color:${colors.secondary};stop-opacity:0.1"/>
-          <stop offset="100%" style="stop-color:${colors.accent};stop-opacity:0.15"/>
-        </linearGradient>
-      </defs>
+  const svg = `<svg width="600" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0d1117">
+          <animate attributeName="stop-color" values="#0d1117;#161b22;#0d1117" dur="8s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="50%" stop-color="#161b22"/>
+        <stop offset="100%" stop-color="#21262d">
+          <animate attributeName="stop-color" values="#21262d;#30363d;#21262d" dur="6s" repeatCount="indefinite"/>
+        </stop>
+      </linearGradient>
       
-      <rect width="100%" height="100%" fill="${colors.bg}" rx="20"/>
-      <rect width="646" height="${height - 4}" x="2" y="2" fill="none" stroke="${colors.primary}" stroke-width="3" rx="18">
-        <animate attributeName="stroke" values="${colors.primary};${colors.secondary};${colors.accent};${colors.primary}" dur="8s" repeatCount="indefinite"/>
-      </rect>
-      <rect width="100%" height="100%" fill="url(#holoBg)" rx="20"/>
+      <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#58a6ff"/>
+        <stop offset="50%" stop-color="#ff7b72"/>
+        <stop offset="100%" stop-color="#a5f3fc"/>
+      </linearGradient>
       
-      <!-- Enhanced title -->
-      <text x="325" y="45" text-anchor="middle" fill="${colors.primary}" font-family="monospace" font-size="24" font-weight="bold" filter="url(#holoGlow)">
-        🎯 ABOUT ME 🎯
-        <animate attributeName="fill" values="${colors.primary};${colors.secondary};${colors.accent};${colors.primary}" dur="5s" repeatCount="indefinite"/>
-      </text>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
       
-      <!-- Holographic scan lines -->
-      ${Array.from({length: 8}, (_, i) => `
-        <line x1="0" y1="${70 + (i * 20)}" x2="650" y2="${70 + (i * 20)}" stroke="${colors.accent}" stroke-width="0.5" opacity="0.2">
-          <animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" begin="${i * 0.5}s" repeatCount="indefinite"/>
-        </line>
-      `).join('')}
+      <pattern id="dots" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+        <circle cx="25" cy="25" r="1" fill="#58a6ff" opacity="0.08">
+          <animate attributeName="opacity" values="0.05;0.15;0.05" dur="4s" repeatCount="indefinite"/>
+        </circle>
+      </pattern>
+    </defs>
+    
+    <rect width="600" height="${height}" fill="url(#bg)" rx="25"/>
+    <rect width="600" height="${height}" fill="url(#dots)" rx="25"/>
+    <rect width="596" height="${height - 4}" x="2" y="2" fill="none" stroke="url(#text)" stroke-width="2" rx="23" stroke-dasharray="7,3">
+      <animate attributeName="stroke-dashoffset" values="0;-20;0" dur="4s" repeatCount="indefinite"/>
+    </rect>
+    
+    <!-- Header-style floating particles -->
+    <circle cx="80" cy="50" r="2" fill="#58a6ff">
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="50;45;50" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="520" cy="${height - 40}" r="1.5" fill="#a5f3fc">
+      <animate attributeName="cx" values="520;525;520" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <text x="300" y="50" text-anchor="middle" fill="url(#text)" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="800" filter="url(#glow)">
+      About Me
+      <animateTransform attributeName="transform" type="scale" values="1;1.01;1" dur="4s" repeatCount="indefinite"/>
+    </text>
+    
+    ${factList.map((fact, index) => {
+      const yPos = 100 + (index * 40);
+      const colors = ['#58a6ff', '#ff7b72', '#a5f3fc', '#79c0ff', '#ffa657'];
+      const color = colors[index % colors.length];
       
-      ${factList.map((fact, index) => {
-        const yPos = 90 + (index * 40);
-        return `
-          <g>
-            <!-- Fact container -->
-            <rect x="30" y="${yPos - 20}" width="590" height="35" rx="8" fill="none" stroke="${colors.secondary}" stroke-width="1" opacity="0.4"/>
-            
-            <!-- Fact text with enhanced styling -->
-            <text x="50" y="${yPos}" fill="${colors.text}" font-family="monospace" font-size="18" filter="url(#holoGlow)">
-              ${fact.trim()}
-              ${animated === 'true' ? `
-                <animate attributeName="opacity" values="0;1" dur="1s" begin="${index * 0.5}s" fill="freeze"/>
-                <animate attributeName="x" values="30;50" dur="1s" begin="${index * 0.5}s" fill="freeze"/>
-              ` : ''}
-            </text>
-            
-            <!-- Progress indicator -->
-            <rect x="580" y="${yPos - 15}" width="30" height="6" rx="3" fill="${colors.bg}" opacity="0.3"/>
-            <rect x="580" y="${yPos - 15}" width="${15 + (index * 3)}" height="6" rx="3" fill="${colors.accent}">
-              <animate attributeName="width" values="0;${15 + (index * 3)}" dur="2s" begin="${index * 0.5 + 1}s" fill="freeze"/>
-            </rect>
-          </g>
-        `;
-      }).join('')}
-      
-      <!-- Decorative elements -->
-      <text x="50" y="${height - 25}" fill="${colors.accent}" font-family="monospace" font-size="14" opacity="0.7">◇ ◆ ◇</text>
-      <text x="550" y="${height - 25}" fill="${colors.secondary}" font-family="monospace" font-size="14" opacity="0.7">◇ ◆ ◇</text>
-    </svg>
-  `;
+      return `
+        <g>
+          <rect x="40" y="${yPos - 18}" width="520" height="32" rx="16" fill="rgba(255,255,255,0.03)" stroke="${color}" stroke-width="1" opacity="0.6">
+            <animate attributeName="opacity" values="0;0.6" dur="0.8s" begin="${index * 0.3}s" fill="freeze"/>
+            <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="${3 + (index * 0.5)}s" repeatCount="indefinite"/>
+          </rect>
+          
+          <text x="60" y="${yPos}" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="500">
+            ${fact.trim()}
+            <animate attributeName="opacity" values="0;1" dur="0.8s" begin="${index * 0.3 + 0.4}s" fill="freeze"/>
+            <animate attributeName="x" values="50;60" dur="0.8s" begin="${index * 0.3 + 0.4}s" fill="freeze"/>
+          </text>
+        </g>
+      `;
+    }).join('')}
+    
+    <text x="60" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.7">
+      &lt;/about&gt;
+      <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
+    </text>
+    
+    <text x="480" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.6">
+      { journey: ongoing }
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
+    </text>
+  </svg>`;
   
   res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate');
+  res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=86400');
   res.send(svg);
 };
