@@ -1,3 +1,4 @@
+// api/quote-generator.js - FIXED WITH MORE QUOTES
 module.exports = (req, res) => {
   const quotes = [
     "The only way to do great work is to love what you do.",
@@ -14,7 +15,42 @@ module.exports = (req, res) => {
     "If life were predictable it would cease to be life, and be without flavor.",
     "Life is 10% what happens to you and 90% how you react to it.",
     "Spread love everywhere you go. Let no one ever come to you without leaving happier.",
-    "When you reach the end of your rope, tie a knot in it and hang on."
+    "When you reach the end of your rope, tie a knot in it and hang on.",
+    "The best time to plant a tree was 20 years ago. The second best time is now.",
+    "Fall seven times and stand up eight.",
+    "Everything you've ever wanted is on the other side of fear.",
+    "We can easily forgive a child who is afraid of the dark; the real tragedy of life is when men are afraid of the light.",
+    "Nothing is impossible. The word itself says 'I'm possible!'",
+    "You only live once, but if you do it right, once is enough.",
+    "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.",
+    "Believe you can and you're halfway there.",
+    "The mind is everything. What you think you become.",
+    "The best revenge is massive success.",
+    "Do what you can, with what you have, where you are.",
+    "It does not matter how slowly you go as long as you do not stop.",
+    "Our lives begin to end the day we become silent about things that matter.",
+    "Change your thoughts and you change your world.",
+    "The only person you are destined to become is the person you decide to be.",
+    "Go confidently in the direction of your dreams. Live the life you have imagined.",
+    "Start where you are. Use what you have. Do what you can.",
+    "When everything seems to be going against you, remember that the airplane takes off against the wind, not with it.",
+    "Too many of us are not living our dreams because we are living our fears.",
+    "I have learned over the years that when one's mind is made up, this diminishes fear.",
+    "Don't watch the clock; do what it does. Keep going.",
+    "You miss 100% of the shots you don't take.",
+    "Whether you think you can or you think you can't, you're right.",
+    "The two most important days in your life are the day you are born and the day you find out why.",
+    "Whatever you are, be a good one.",
+    "Keep your face always toward the sunshine—and shadows will fall behind you.",
+    "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+    "In three words I can sum up everything I've learned about life: it goes on.",
+    "If you look at what you have in life, you'll always have more.",
+    "Life is either a daring adventure or nothing at all.",
+    "Many of life's failures are people who did not realize how close they were to success when they gave up.",
+    "You have brains in your head. You have feet in your shoes. You can steer yourself any direction you choose.",
+    "Tough times never last, but tough people do.",
+    "Be the change that you wish to see in the world.",
+    "Don't let yesterday take up too much of today."
   ];
   
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -64,7 +100,6 @@ module.exports = (req, res) => {
       <animate attributeName="stroke-dashoffset" values="0;-30;0" dur="4s" repeatCount="indefinite"/>
     </rect>
     
-    <!-- Header-style floating elements -->
     <circle cx="100" cy="130" r="2" fill="#58a6ff">
       <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
       <animate attributeName="cy" values="130;125;130" dur="4s" repeatCount="indefinite"/>
@@ -100,7 +135,10 @@ module.exports = (req, res) => {
     </text>
   </svg>`;
   
+  // CRITICAL FIX: Set cache to expire quickly so quotes refresh
   res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate=86400');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
   res.send(svg);
 };
