@@ -115,38 +115,102 @@ module.exports = (req, res) => {
   const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#1a1a2e"/>
-        <stop offset="50%" stop-color="#16213e"/>
-        <stop offset="100%" stop-color="#0f3460"/>
+        <stop offset="0%" stop-color="#0d1117">
+          <animate attributeName="stop-color" values="#0d1117;#161b22;#0d1117" dur="8s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="50%" stop-color="#161b22"/>
+        <stop offset="100%" stop-color="#21262d">
+          <animate attributeName="stop-color" values="#21262d;#30363d;#21262d" dur="6s" repeatCount="indefinite"/>
+        </stop>
       </linearGradient>
       
-      <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#e94560"/>
-        <stop offset="50%" stop-color="#00d4ff"/>
-        <stop offset="100%" stop-color="#533483"/>
+      <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#58a6ff">
+          <animate attributeName="offset" values="0%;20%;0%" dur="5s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="50%" stop-color="#ff7b72">
+          <animate attributeName="offset" values="50%;70%;50%" dur="4s" repeatCount="indefinite"/>
+        </stop>
+        <stop offset="100%" stop-color="#a5f3fc">
+          <animate attributeName="offset" values="100%;80%;100%" dur="6s" repeatCount="indefinite"/>
+        </stop>
       </linearGradient>
       
       <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
         <feMerge>
           <feMergeNode in="coloredBlur"/>
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
+      
+      <pattern id="dots" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+        <circle cx="30" cy="30" r="2" fill="#58a6ff" opacity="0.1">
+          <animate attributeName="opacity" values="0.1;0.3;0.1" dur="4s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="1;3;1" dur="3s" repeatCount="indefinite"/>
+        </circle>
+      </pattern>
     </defs>
     
-    <rect width="${width}" height="${height}" fill="url(#bg)" rx="20"/>
+    <rect width="${width}" height="${height}" fill="url(#bg)" rx="25"/>
+    <rect width="${width}" height="${height}" fill="url(#dots)" rx="25"/>
     
-    <rect width="${width - 6}" height="${height - 6}" x="3" y="3" fill="none" stroke="#e94560" stroke-width="3" rx="17" opacity="0.5">
-      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite"/>
+    <!-- Animated border with wave effect -->
+    <rect width="${width - 4}" height="${height - 4}" x="2" y="2" fill="none" stroke="url(#text)" stroke-width="3" rx="23" stroke-dasharray="10,5">
+      <animate attributeName="stroke-dashoffset" values="0;-30;0" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-width" values="2;4;2" dur="4s" repeatCount="indefinite"/>
     </rect>
     
-    <text x="350" y="55" text-anchor="middle" fill="url(#titleGrad)" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="900" filter="url(#glow)">
-      Tech Arsenal
+    <!-- Floating geometric elements -->
+    <g opacity="0.6">
+      <polygon points="80,40 100,30 120,40 120,60 100,70 80,60" fill="none" stroke="#58a6ff" stroke-width="2">
+        <animateTransform attributeName="transform" type="rotate" values="0 100 50;360 100 50" dur="20s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+      </polygon>
+      
+      <circle cx="620" cy="50" r="15" fill="none" stroke="#ff7b72" stroke-width="2">
+        <animate attributeName="r" values="10;20;10" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <rect x="550" y="${height - 70}" width="25" height="25" fill="none" stroke="#a5f3fc" stroke-width="2" rx="5">
+        <animateTransform attributeName="transform" type="rotate" values="0 562 ${height - 57};45 562 ${height - 57};0 562 ${height - 57}" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+      </rect>
+    </g>
+    
+    <!-- Dynamic particle system -->
+    <g>
+      <circle cx="150" cy="60" r="3" fill="#58a6ff">
+        <animate attributeName="cy" values="60;50;60" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0.9;0.4" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="550" cy="40" r="2" fill="#ff7b72">
+        <animate attributeName="cx" values="550;570;550" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="200" cy="35" r="1.5" fill="#a5f3fc">
+        <animate attributeName="r" values="1;3;1" dur="3s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <circle cx="450" cy="${height - 50}" r="2.5" fill="#79c0ff">
+        <animate attributeName="cy" values="${height - 50};${height - 60};${height - 50}" dur="6s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="#79c0ff;#ff7b72;#79c0ff" dur="5s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+    
+    <text x="350" y="50" text-anchor="middle" fill="url(#text)" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" filter="url(#glow)">
+      Tech Stack
+      <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
     </text>
     
-    <text x="350" y="85" text-anchor="middle" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="500">
-      Powered by passion &amp; curiosity
+    <text x="350" y="80" text-anchor="middle" fill="#8b949e" font-family="system-ui, -apple-system, sans-serif" font-size="16">
+      Technologies I'm Learning
+      <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
     </text>
     
     ${iconList.map((icon, index) => {
@@ -154,38 +218,41 @@ module.exports = (req, res) => {
       const row = Math.floor(index / cols);
       const col = index % cols;
       const x = 90 + (col * 140) + ((width - (cols * 140)) / 2);
-      const y = 140 + (row * 90);
+      const y = 130 + (row * 90);
       
       return `
         <g>
-          <circle cx="${x}" cy="${y}" r="35" fill="${data.color}" opacity="0.08">
-            <animate attributeName="opacity" values="0.05;0.12;0.05" dur="3s" repeatCount="indefinite"/>
-          </circle>
-          
-          <circle cx="${x}" cy="${y}" r="32" fill="none" stroke="${data.color}" stroke-width="2" opacity="0.3">
-            <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+          <circle cx="${x}" cy="${y}" r="30" fill="${data.color}" opacity="0.05">
+            <animate attributeName="opacity" values="0.02;0.1;0.02" dur="${3 + (index * 0.2)}s" repeatCount="indefinite"/>
           </circle>
           
           <g transform="translate(${x}, ${y})" filter="url(#glow)">
             ${data.svg}
+            <animate attributeName="transform" values="translate(${x}, ${y});translate(${x}, ${y-3});translate(${x}, ${y})" dur="${3 + (index * 0.3)}s" repeatCount="indefinite"/>
           </g>
           
-          <text x="${x}" y="${y + 50}" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">
+          <text x="${x}" y="${y + 45}" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600">
             ${data.name}
           </text>
         </g>
       `;
     }).join('')}
     
-    <line x1="50" y1="${height - 40}" x2="650" y2="${height - 40}" stroke="#334155" stroke-width="1" opacity="0.3"/>
-    
-    <text x="60" y="${height - 20}" fill="#64748b" font-family="monospace" font-size="11" font-weight="500">
-      &lt;building&gt;
+    <text x="60" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.7">
+      &lt;/skills&gt;
+      <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
+    </text>
+    <text x="${width - 120}" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.6">
+      { learning: true }
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
     </text>
     
-    <text x="${width - 140}" y="${height - 20}" fill="#64748b" font-family="monospace" font-size="11" font-weight="500">
-      { status: "learning" }
-    </text>
+    <!-- Scanning line effect -->
+    <line x1="0" y1="90" x2="${width}" y2="90" stroke="#58a6ff" stroke-width="1" opacity="0.3">
+      <animate attributeName="opacity" values="0;0.6;0" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="y1" values="20;${height - 20};20" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="20;${height - 20};20" dur="4s" repeatCount="indefinite"/>
+    </line>
   </svg>`;
   
   res.setHeader('Content-Type', 'image/svg+xml');
