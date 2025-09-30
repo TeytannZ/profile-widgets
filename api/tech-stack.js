@@ -120,16 +120,11 @@ module.exports = (req, res) => {
         <stop offset="100%" stop-color="#0f3460"/>
       </linearGradient>
       
-      <linearGradient id="cardGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#e94560" stop-opacity="0.15"/>
-        <stop offset="50%" stop-color="#533483" stop-opacity="0.1"/>
-        <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.15"/>
+      <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#e94560"/>
+        <stop offset="50%" stop-color="#00d4ff"/>
+        <stop offset="100%" stop-color="#533483"/>
       </linearGradient>
-      
-      <radialGradient id="spotlight">
-        <stop offset="0%" stop-color="#fff" stop-opacity="0.08"/>
-        <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
-      </radialGradient>
       
       <filter id="glow">
         <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -138,114 +133,43 @@ module.exports = (req, res) => {
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      
-      <filter id="softGlow">
-        <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
     </defs>
     
-    <!-- Background -->
     <rect width="${width}" height="${height}" fill="url(#bg)" rx="20"/>
     
-    <!-- Moving spotlight effect -->
-    <circle cx="350" cy="100" r="300" fill="url(#spotlight)">
-      <animate attributeName="cx" values="200;500;200" dur="15s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="100;${height/2};100" dur="12s" repeatCount="indefinite"/>
-    </circle>
-    
-    <!-- Animated gradient border -->
-    <rect width="${width - 6}" height="${height - 6}" x="3" y="3" fill="none" stroke="url(#cardGlow)" stroke-width="4" rx="17">
-      <animate attributeName="stroke-width" values="3;5;3" dur="3s" repeatCount="indefinite"/>
+    <rect width="${width - 6}" height="${height - 6}" x="3" y="3" fill="none" stroke="#e94560" stroke-width="3" rx="17" opacity="0.5">
+      <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite"/>
     </rect>
-    
-    <!-- Floating orbs -->
-    <circle cx="100" cy="80" r="40" fill="#e94560" opacity="0.1" filter="url(#softGlow)">
-      <animate attributeName="cy" values="80;60;80" dur="6s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.05;0.15;0.05" dur="4s" repeatCount="indefinite"/>
-    </circle>
-    
-    <circle cx="600" cy="${height - 100}" r="60" fill="#00d4ff" opacity="0.08" filter="url(#softGlow)">
-      <animate attributeName="cx" values="600;580;600" dur="8s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.05;0.12;0.05" dur="5s" repeatCount="indefinite"/>
-    </circle>
-    
-    <circle cx="150" cy="${height - 60}" r="30" fill="#533483" opacity="0.1" filter="url(#softGlow)">
-      <animate attributeName="r" values="25;35;25" dur="7s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.06;0.14;0.06" dur="3s" repeatCount="indefinite"/>
-    </circle>
-    
-    <!-- Animated particles -->
-    ${Array.from({length: 8}, (_, i) => {
-      const x = 100 + (i * 70);
-      const y = 50 + (i % 3) * 30;
-      const delay = i * 0.5;
-      return `
-        <circle cx="${x}" cy="${y}" r="2" fill="#e94560" opacity="0.4">
-          <animate attributeName="cy" values="${y};${y - 20};${y}" dur="4s" begin="${delay}s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.2;0.6;0.2" dur="4s" begin="${delay}s" repeatCount="indefinite"/>
-        </circle>
-      `;
-    }).join('')}
-    
-    <!-- Title with gradient text effect -->
-    <defs>
-      <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#e94560">
-          <animate attributeName="stop-color" values="#e94560;#ff6b9d;#e94560" dur="4s" repeatCount="indefinite"/>
-        </stop>
-        <stop offset="50%" stop-color="#00d4ff">
-          <animate attributeName="stop-color" values="#00d4ff;#4dd4ff;#00d4ff" dur="5s" repeatCount="indefinite"/>
-        </stop>
-        <stop offset="100%" stop-color="#533483">
-          <animate attributeName="stop-color" values="#533483;#7b5ea7;#533483" dur="6s" repeatCount="indefinite"/>
-        </stop>
-      </linearGradient>
-    </defs>
     
     <text x="350" y="55" text-anchor="middle" fill="url(#titleGrad)" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="900" filter="url(#glow)">
       Tech Arsenal
     </text>
     
     <text x="350" y="85" text-anchor="middle" fill="#94a3b8" font-family="system-ui, -apple-system, sans-serif" font-size="15" font-weight="500">
-      Powered by passion & curiosity
+      Powered by passion &amp; curiosity
     </text>
     
-    <!-- Icon grid with enhanced animations -->
     ${iconList.map((icon, index) => {
       const data = iconData[icon.trim()] || { color: '#8b949e', svg: '<circle cx="0" cy="0" r="8" fill="#8b949e"/>', name: 'Unknown' };
       const row = Math.floor(index / cols);
       const col = index % cols;
       const x = 90 + (col * 140) + ((width - (cols * 140)) / 2);
       const y = 140 + (row * 90);
-      const delay = index * 0.15;
       
       return `
-        <g opacity="0">
-          <animate attributeName="opacity" values="0;1" dur="0.6s" begin="${delay}s" fill="freeze"/>
-          
-          <!-- Pulsing background circle -->
-          <circle cx="${x}" cy="${y}" r="35" fill="${data.color}" opacity="0.06">
-            <animate attributeName="r" values="30;38;30" dur="${4 + (index % 3)}s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.04;0.12;0.04" dur="${3 + (index % 2)}s" repeatCount="indefinite"/>
+        <g>
+          <circle cx="${x}" cy="${y}" r="35" fill="${data.color}" opacity="0.08">
+            <animate attributeName="opacity" values="0.05;0.12;0.05" dur="3s" repeatCount="indefinite"/>
           </circle>
           
-          <!-- Rotating ring -->
-          <circle cx="${x}" cy="${y}" r="32" fill="none" stroke="${data.color}" stroke-width="2" opacity="0.3" stroke-dasharray="50 150">
-            <animateTransform attributeName="transform" type="rotate" values="0 ${x} ${y};360 ${x} ${y}" dur="${8 + (index % 4)}s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.2;0.5;0.2" dur="3s" repeatCount="indefinite"/>
+          <circle cx="${x}" cy="${y}" r="32" fill="none" stroke="${data.color}" stroke-width="2" opacity="0.3">
+            <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
           </circle>
           
-          <!-- Icon with hover effect simulation -->
           <g transform="translate(${x}, ${y})" filter="url(#glow)">
             ${data.svg}
-            <animateTransform attributeName="transform" type="translate" values="${x},${y};${x},${y - 5};${x},${y}" dur="${4 + (index % 3)}s" repeatCount="indefinite"/>
           </g>
           
-          <!-- Icon name -->
           <text x="${x}" y="${y + 50}" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600">
             ${data.name}
           </text>
@@ -253,25 +177,15 @@ module.exports = (req, res) => {
       `;
     }).join('')}
     
-    <!-- Footer decorative elements -->
     <line x1="50" y1="${height - 40}" x2="650" y2="${height - 40}" stroke="#334155" stroke-width="1" opacity="0.3"/>
     
     <text x="60" y="${height - 20}" fill="#64748b" font-family="monospace" font-size="11" font-weight="500">
       &lt;building&gt;
-      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
     </text>
     
     <text x="${width - 140}" y="${height - 20}" fill="#64748b" font-family="monospace" font-size="11" font-weight="500">
       { status: "learning" }
-      <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
     </text>
-    
-    <!-- Scan line effect -->
-    <line x1="0" y1="100" x2="${width}" y2="100" stroke="#e94560" stroke-width="2" opacity="0">
-      <animate attributeName="opacity" values="0;0.3;0" dur="5s" repeatCount="indefinite"/>
-      <animate attributeName="y1" values="30;${height - 30};30" dur="5s" repeatCount="indefinite"/>
-      <animate attributeName="y2" values="30;${height - 30};30" dur="5s" repeatCount="indefinite"/>
-    </line>
   </svg>`;
   
   res.setHeader('Content-Type', 'image/svg+xml');
