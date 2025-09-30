@@ -163,9 +163,7 @@ module.exports = (req, res) => {
       const y = 130 + (row * 85);
       
       return `
-        <g opacity="0">
-          <animate attributeName="opacity" from="0" to="1" begin="${index * 0.1}s" dur="0.5s" fill="freeze"/>
-          
+        <g>
           <circle cx="${x}" cy="${y}" r="32" fill="${data.color}" opacity="0.08"/>
           <circle cx="${x}" cy="${y}" r="28" fill="none" stroke="${data.color}" stroke-width="1.5" opacity="0.2"/>
           
