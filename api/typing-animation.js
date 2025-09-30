@@ -59,10 +59,10 @@ module.exports = (req, res) => {
       Live Terminal Session
     </text>
     
-    <circle cx="640" cy="35" r="4" fill="#3fb950">
+    <text x="600" y="40" fill="#3fb950" font-family="monospace" font-size="10" font-weight="600">LIVE</text>
+    <circle cx="620" cy="35" r="4" fill="#3fb950">
       <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
     </circle>
-    <text x="620" y="40" fill="#3fb950" font-family="monospace" font-size="10">LIVE</text>
     
     <text x="35" y="80" fill="#58a6ff" font-family="monospace" font-size="16" font-weight="600" filter="url(#termGlow)">
       teytann@dev:~$
@@ -76,40 +76,57 @@ module.exports = (req, res) => {
       // Create each character with individual timing
       for (let i = 0; i < line.text.length; i++) {
         const char = line.text[i];
-        const delay = (line.start + i) * 0.1; // 100ms per character
+        const delay = (line.start + i) * 0.08; // 80ms per character
         
-        // Color coding for syntax highlighting
-        let fill = '#f0f6fc';
-        if (line.text.includes('console.log')) {
-          if (i >= 0 && i < 7) fill = '#d73a49'; // console
-          if (i >= 8 && i < 11) fill = '#6f42c1'; // log
-          if (char === "'" || (i > line.text.indexOf("'") && i < line.text.lastIndexOf("'"))) fill = '#032f62';
-        } else if (line.text.includes('const')) {
-          if (i >= 0 && i < 5) fill = '#d73a49'; // const
-          if (char === 'true' || char === 'false') fill = '#005cc5';
-        } else if (line.text.includes('while')) {
-          if (i >= 0 && i < 5) fill = '#d73a49'; // while
-          if (line.text.substring(i, i + 4) === 'code') fill = '#6f42c1';
+        // Enhanced color coding for syntax highlighting
+        let fill = '#f0f6fc'; // Default bright white
+        const lowerText = line.text.toLowerCase();
+        
+        if (lowerText.includes('console.log')) {
+          const consoleStart = lowerText.indexOf('console');
+          const logStart = lowerText.indexOf('log');
+          const firstQuote = line.text.indexOf("'");
+          const lastQuote = line.text.lastIndexOf("'");
+          
+          if (i >= consoleStart && i < consoleStart + 7) fill = '#ff7b72'; // console - red
+          else if (i >= logStart && i < logStart + 3) fill = '#d2a8ff'; // log - purple
+          else if (firstQuote !== -1 && i >= firstQuote && i <= lastQuote) fill = '#a5d6ff'; // string - cyan
+        } else if (lowerText.includes('const')) {
+          const constStart = lowerText.indexOf('const');
+          if (i >= constStart && i < constStart + 5) fill = '#ff7b72'; // const - red
+          if (lowerText.includes('true') || lowerText.includes('false')) {
+            const trueStart = lowerText.indexOf('true');
+            const falseStart = lowerText.indexOf('false');
+            if ((trueStart !== -1 && i >= trueStart && i < trueStart + 4) ||
+                (falseStart !== -1 && i >= falseStart && i < falseStart + 5)) {
+              fill = '#79c0ff'; // boolean - blue
+            }
+          }
+        } else if (lowerText.includes('while')) {
+          const whileStart = lowerText.indexOf('while');
+          const codeStart = lowerText.indexOf('code');
+          if (i >= whileStart && i < whileStart + 5) fill = '#ff7b72'; // while - red
+          if (codeStart !== -1 && i >= codeStart && i < codeStart + 4) fill = '#d2a8ff'; // function - purple
         }
         
         content += `
           <text x="${50 + (i * 9)}" y="${yPos}" fill="${fill}" font-family="monospace" font-size="15" opacity="0">
             ${char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '&' ? '&amp;' : char}
-            <animate attributeName="opacity" values="0;1" dur="0.1s" begin="${delay}s" fill="freeze"/>
+            <animate attributeName="opacity" values="0;1" dur="0.05s" begin="${delay}s" fill="freeze"/>
           </text>
         `;
       }
       return content;
     }).join('')}
     
-    <!-- Cursor positioned correctly after the last character -->
-    <rect x="${50 + (lineData[lineData.length - 1]?.length || 0) * 9}" y="${105 + (codeLines.length * 35)}" width="3" height="20" fill="#3fb950" filter="url(#termGlow)">
-      <animate attributeName="opacity" values="0;0;1;0;1" dur="1s" begin="${totalChars * 0.1}s" repeatCount="indefinite"/>
+    <!-- Cursor positioned correctly after the last character of the last line -->
+    <rect x="${50 + (lineData[lineData.length - 1]?.length || 0) * 9}" y="${100 + (lineData.length * 35)}" width="2" height="18" fill="#3fb950" filter="url(#termGlow)">
+      <animate attributeName="opacity" values="0;0;1;0;1" dur="1s" begin="${totalChars * 0.08}s" repeatCount="indefinite"/>
     </rect>
     
     <text x="35" y="${height - 25}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0">
       Process completed successfully
-      <animate attributeName="opacity" values="0;0.8" dur="1s" begin="${totalChars * 0.1 + 2}s" fill="freeze"/>
+      <animate attributeName="opacity" values="0;0.8" dur="1s" begin="${totalChars * 0.08 + 1.5}s" fill="freeze"/>
     </text>
   </svg>`;
   
