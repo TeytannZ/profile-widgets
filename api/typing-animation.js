@@ -59,8 +59,8 @@ module.exports = (req, res) => {
       Live Terminal Session
     </text>
     
-    <text x="600" y="40" fill="#3fb950" font-family="monospace" font-size="10" font-weight="600">LIVE</text>
-    <circle cx="620" cy="35" r="4" fill="#3fb950">
+    <text x="630" y="40" fill="#3fb950" font-family="monospace" font-size="10" font-weight="600">LIVE</text>
+    <circle cx="660" cy="35" r="4" fill="#3fb950">
       <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
     </circle>
     
