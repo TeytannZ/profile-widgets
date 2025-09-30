@@ -1,4 +1,4 @@
-// api/quote-generator.js - FIXED WITH MORE QUOTES
+// api/quote-generator.js - Updates on every refresh
 module.exports = (req, res) => {
   const quotes = [
     "The only way to do great work is to love what you do.",
@@ -53,11 +53,15 @@ module.exports = (req, res) => {
     "Don't let yesterday take up too much of today."
   ];
   
+  // Generate random quote
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  
+  // Add timestamp to ensure uniqueness
+  const timestamp = Date.now();
   
   const svg = `<svg width="750" height="160" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <linearGradient id="bg-${timestamp}" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#0d1117">
           <animate attributeName="stop-color" values="#0d1117;#161b22;#0d1117" dur="8s" repeatCount="indefinite"/>
         </stop>
@@ -67,7 +71,7 @@ module.exports = (req, res) => {
         </stop>
       </linearGradient>
       
-      <linearGradient id="text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <linearGradient id="text-${timestamp}" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#58a6ff">
           <animate attributeName="offset" values="0%;15%;0%" dur="5s" repeatCount="indefinite"/>
         </stop>
@@ -79,7 +83,7 @@ module.exports = (req, res) => {
         </stop>
       </linearGradient>
       
-      <filter id="glow">
+      <filter id="glow-${timestamp}">
         <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
         <feMerge>
           <feMergeNode in="coloredBlur"/>
@@ -87,16 +91,16 @@ module.exports = (req, res) => {
         </feMerge>
       </filter>
       
-      <pattern id="dots" x="0" y="0" width="45" height="45" patternUnits="userSpaceOnUse">
+      <pattern id="dots-${timestamp}" x="0" y="0" width="45" height="45" patternUnits="userSpaceOnUse">
         <circle cx="22" cy="22" r="1" fill="#58a6ff" opacity="0.08">
           <animate attributeName="opacity" values="0.05;0.15;0.05" dur="4s" repeatCount="indefinite"/>
         </circle>
       </pattern>
     </defs>
     
-    <rect width="750" height="160" fill="url(#bg)" rx="25"/>
-    <rect width="750" height="160" fill="url(#dots)" rx="25"/>
-    <rect width="746" height="156" x="2" y="2" fill="none" stroke="url(#text)" stroke-width="2" rx="23" stroke-dasharray="10,5">
+    <rect width="750" height="160" fill="url(#bg-${timestamp})" rx="25"/>
+    <rect width="750" height="160" fill="url(#dots-${timestamp})" rx="25"/>
+    <rect width="746" height="156" x="2" y="2" fill="none" stroke="url(#text-${timestamp})" stroke-width="2" rx="23" stroke-dasharray="10,5">
       <animate attributeName="stroke-dashoffset" values="0;-30;0" dur="4s" repeatCount="indefinite"/>
     </rect>
     
@@ -112,7 +116,7 @@ module.exports = (req, res) => {
       <animate attributeName="r" values="1;2;1" dur="3s" repeatCount="indefinite"/>
     </circle>
     
-    <text x="375" y="45" text-anchor="middle" fill="url(#text)" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" filter="url(#glow)">
+    <text x="375" y="45" text-anchor="middle" fill="url(#text-${timestamp})" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" filter="url(#glow-${timestamp})">
       Daily Inspiration
       <animateTransform attributeName="transform" type="scale" values="1;1.01;1" dur="4s" repeatCount="indefinite"/>
     </text>
@@ -135,10 +139,12 @@ module.exports = (req, res) => {
     </text>
   </svg>`;
   
-  // CRITICAL FIX: Set cache to expire quickly so quotes refresh
+  // Set headers to prevent any caching
   res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
+  res.setHeader('Last-Modified', new Date().toUTCString());
+  
   res.send(svg);
 };
