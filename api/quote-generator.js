@@ -154,4 +154,23 @@ module.exports = (req, res) => {
       </text>
     `).join('')}
     
-    <text x="120" y="${height -
+    <text x="120" y="${height - 15}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.7">
+      &lt;wisdom/&gt;
+      <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
+    </text>
+    
+    <text x="630" y="${height - 15}" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.6">
+      { inspire: daily }
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
+    </text>
+  </svg>`;
+  
+  // Set headers to prevent any caching
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Last-Modified', new Date().toUTCString());
+  
+  res.send(svg);
+};
