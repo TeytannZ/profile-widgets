@@ -59,7 +59,33 @@ module.exports = (req, res) => {
   // Add timestamp to ensure uniqueness
   const timestamp = Date.now();
   
-  const svg = `<svg width="750" height="160" xmlns="http://www.w3.org/2000/svg">
+  // Function to wrap text
+  function wrapText(text, maxCharsPerLine) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+    
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      if (testLine.length <= maxCharsPerLine) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+    
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  }
+  
+  const wrappedLines = wrapText(randomQuote, 75);
+  const lineHeight = 22;
+  const startY = 75;
+  const totalTextHeight = wrappedLines.length * lineHeight;
+  const height = Math.max(180, totalTextHeight + 120);
+  
+  const svg = `<svg width="750" height="${height}" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg-${timestamp}" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#0d1117">
@@ -98,15 +124,15 @@ module.exports = (req, res) => {
       </pattern>
     </defs>
     
-    <rect width="750" height="160" fill="url(#bg-${timestamp})" rx="25"/>
-    <rect width="750" height="160" fill="url(#dots-${timestamp})" rx="25"/>
-    <rect width="746" height="156" x="2" y="2" fill="none" stroke="url(#text-${timestamp})" stroke-width="2" rx="23" stroke-dasharray="10,5">
+    <rect width="750" height="${height}" fill="url(#bg-${timestamp})" rx="25"/>
+    <rect width="750" height="${height}" fill="url(#dots-${timestamp})" rx="25"/>
+    <rect width="746" height="${height - 4}" x="2" y="2" fill="none" stroke="url(#text-${timestamp})" stroke-width="2" rx="23" stroke-dasharray="10,5">
       <animate attributeName="stroke-dashoffset" values="0;-30;0" dur="4s" repeatCount="indefinite"/>
     </rect>
     
-    <circle cx="100" cy="130" r="2" fill="#58a6ff">
+    <circle cx="100" cy="${height - 30}" r="2" fill="#58a6ff">
       <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="cy" values="130;125;130" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="${height - 30};${height - 35};${height - 30}" dur="4s" repeatCount="indefinite"/>
     </circle>
     <circle cx="650" cy="40" r="1.5" fill="#ff7b72">
       <animate attributeName="cx" values="650;655;650" dur="5s" repeatCount="indefinite"/>
@@ -118,33 +144,14 @@ module.exports = (req, res) => {
     
     <text x="375" y="45" text-anchor="middle" fill="url(#text-${timestamp})" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" filter="url(#glow-${timestamp})">
       Daily Inspiration
-      <animateTransform attributeName="transform" type="scale" values="1;1.01;1" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
     </text>
     
-    <text x="375" y="90" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="400" font-style="italic">
-      "${randomQuote}"
-      <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
-    </text>
+    ${wrappedLines.map((line, i) => `
+      <text x="375" y="${startY + (i * lineHeight)}" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="16" font-weight="400" font-style="italic">
+        ${i === 0 ? '"' : ''}${line}${i === wrappedLines.length - 1 ? '"' : ''}
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+      </text>
+    `).join('')}
     
-    <text x="120" y="140" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.7">
-      &lt;wisdom/&gt;
-      <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
-      <animateTransform attributeName="transform" type="translate" values="0,0;3,0;0,0" dur="2s" repeatCount="indefinite"/>
-    </text>
-    
-    <text x="630" y="140" fill="#7d8590" font-family="monospace" font-size="12" opacity="0.6">
-      { inspire: daily }
-      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="4s" repeatCount="indefinite"/>
-      <animateTransform attributeName="transform" type="translate" values="0,0;-2,0;0,0" dur="3s" repeatCount="indefinite"/>
-    </text>
-  </svg>`;
-  
-  // Set headers to prevent any caching
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Last-Modified', new Date().toUTCString());
-  
-  res.send(svg);
-};
+    <text x="120" y="${height -
