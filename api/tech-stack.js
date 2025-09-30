@@ -141,7 +141,9 @@ module.exports = (req, res) => {
     
     <rect width="${width}" height="${height}" fill="url(#bg)" rx="25"/>
     <rect width="${width}" height="${height}" fill="url(#dots)" rx="25"/>
-    <rect width="${width - 4}" height="${height - 4}" x="2" y="2" fill="none" stroke="#30363d" stroke-width="2" rx="23"/>
+    <rect width="${width - 4}" height="${height - 4}" x="2" y="2" fill="none" stroke="#30363d" stroke-width="2" rx="23">
+      <animate attributeName="stroke-dasharray" values="0,2000;2000,0;0,2000" dur="8s" repeatCount="indefinite"/>
+    </rect>
     
     <text x="350" y="50" text-anchor="middle" fill="#f0f6fc" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="800" filter="url(#glow)">
       Tech Stack
